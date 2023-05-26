@@ -8,7 +8,6 @@
 #include <QApplication>
 #include <QTextStream>
 
-
 TextEditor::TextEditor(QWidget *parent)
     : QMainWindow(parent)
 {
@@ -17,6 +16,12 @@ TextEditor::TextEditor(QWidget *parent)
 
     createActions();
     createMenus();
+
+    // Set the initial window color
+    QPalette palette = textEdit->palette();
+    palette.setColor(QPalette::Base, Qt::black);
+    palette.setColor(QPalette::Text, Qt::white);
+    textEdit->setPalette(palette);
 }
 
 void TextEditor::createActions()
@@ -41,6 +46,9 @@ void TextEditor::createActions()
 
     backgroundColorAction = new QAction(tr("Change Background Color"), this);
     connect(backgroundColorAction, &QAction::triggered, this, &TextEditor::changeBackgroundColor);
+
+    windowColorAction = new QAction(tr("Change Window Color"), this);
+       connect(windowColorAction, &QAction::triggered, this, &TextEditor::changeWindowColor);
 }
 
 void TextEditor::createMenus()
@@ -55,6 +63,8 @@ void TextEditor::createMenus()
     editMenu->addAction(fontSizeAction);
     editMenu->addAction(fontColorAction);
     editMenu->addAction(backgroundColorAction);
+        editMenu->addAction(windowColorAction);
+
 }
 
 void TextEditor::saveFile()
@@ -129,3 +139,15 @@ void TextEditor::changeBackgroundColor()
         textEdit->setTextBackgroundColor(color);
     }
 }
+
+void TextEditor::changeWindowColor()
+{
+    QColor color = QColorDialog::getColor(palette().color(QPalette::Window), this);
+    if (color.isValid())
+    {
+        QPalette newPalette = textEdit->palette();
+        newPalette.setColor(QPalette::Window, color);
+        textEdit->setPalette(newPalette);
+    }
+}
+

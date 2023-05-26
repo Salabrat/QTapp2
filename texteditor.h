@@ -9,6 +9,7 @@
 #include <QFileDialog>
 #include <QFontDialog>
 #include <QColorDialog>
+#include <QPalette>
 
 class TextEditor : public QMainWindow
 {
@@ -24,6 +25,7 @@ private slots:
     void changeFontSize();
     void changeFontColor();
     void changeBackgroundColor();
+    void changeWindowColor();
 
 private:
     void createActions();
@@ -34,7 +36,6 @@ private:
 
     QMenu *fileMenu;
     QMenu *editMenu;
-    QMenu *formatMenu;
 
     QAction *saveAction;
     QAction *openAction;
@@ -43,6 +44,7 @@ private:
     QAction *fontSizeAction;
     QAction *fontColorAction;
     QAction *backgroundColorAction;
+    QAction *windowColorAction;
 };
 
 #endif // TEXTEDITOR_H
