@@ -6,9 +6,12 @@
 #include <QAction>
 #include <QMenu>
 #include <QMenuBar>
+#include <QFileDialog>
+#include <QFontDialog>
+#include <QColorDialog>
 
-
-class TextEditor : public QMainWindow {
+class TextEditor : public QMainWindow
+{
     Q_OBJECT
 
 public:
@@ -17,10 +20,10 @@ public:
 private slots:
     void saveFile();
     void openFile();
-    void exitApplication();
-    void showHelp();
-    void showFontDialog();
-    void showColorDialog();
+    void changeFont();
+    void changeFontSize();
+    void changeFontColor();
+    void changeBackgroundColor();
 
 private:
     void createActions();
@@ -32,14 +35,14 @@ private:
     QMenu *fileMenu;
     QMenu *editMenu;
     QMenu *formatMenu;
-    QMenu *helpMenu;
 
     QAction *saveAction;
     QAction *openAction;
     QAction *exitAction;
-    QAction *helpAction;
     QAction *fontAction;
-    QAction *colorAction;
+    QAction *fontSizeAction;
+    QAction *fontColorAction;
+    QAction *backgroundColorAction;
 };
 
 #endif // TEXTEDITOR_H
