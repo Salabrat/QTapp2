@@ -3,13 +3,14 @@
 
 #include <QMainWindow>
 
-class TextEdit;
-
 class TextEditor : public QMainWindow {
     Q_OBJECT
 
 public:
     TextEditor(QWidget *parent = nullptr);
+
+private slots:
+    void saveFile();
 
 private:
 };
