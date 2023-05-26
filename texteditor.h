@@ -2,9 +2,11 @@
 #define TEXTEDITOR_H
 
 #include <QMainWindow>
+#include <QTextEdit>
+#include <QAction>
+#include <QMenu>
+#include <QMenuBar>
 
-class QAction;
-class QTextEdit;
 
 class TextEditor : public QMainWindow {
     Q_OBJECT
@@ -13,30 +15,31 @@ public:
     TextEditor(QWidget *parent = nullptr);
 
 private slots:
-    void newFile();
-    void open();
-    bool save();
-    bool saveAs();
-    void about();
+    void saveFile();
+    void openFile();
+    void exitApplication();
+    void showHelp();
+    void showFontDialog();
+    void showColorDialog();
 
 private:
     void createActions();
     void createMenus();
-    bool maybeSave();
-    bool saveFile(const QString &fileName);
-    void loadFile(const QString &fileName);
-    void setCurrentFile(const QString &fileName);
 
     QTextEdit *textEdit;
-    QString curFile;
+    QString currentFile;
+
     QMenu *fileMenu;
+    QMenu *editMenu;
+    QMenu *formatMenu;
     QMenu *helpMenu;
-    QAction *newAct;
-    QAction *openAct;
-    QAction *saveAct;
-    QAction *saveAsAct;
-    QAction *exitAct;
-    QAction *aboutAct;
+
+    QAction *saveAction;
+    QAction *openAction;
+    QAction *exitAction;
+    QAction *helpAction;
+    QAction *fontAction;
+    QAction *colorAction;
 };
 
 #endif // TEXTEDITOR_H
