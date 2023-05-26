@@ -1,12 +1,12 @@
-#include "texteditor.h"
+#include <QMenuBar>
+#include <QMenu>
+#include <QToolBar>
 #include <QFileDialog>
 #include <QFontDialog>
-#include <QInputDialog>
 #include <QColorDialog>
+#include "texteditor.h"
 #include <QTextStream>
-#include <QFile>
-#include <QApplication>
-#include <QTextStream>
+
 
 TextEditor::TextEditor(QWidget *parent)
     : QMainWindow(parent)
@@ -15,86 +15,31 @@ TextEditor::TextEditor(QWidget *parent)
     setCentralWidget(textEdit);
 
     createActions();
-    createMenus();
-
-    // Set the initial window color
-    QPalette palette = textEdit->palette();
-    palette.setColor(QPalette::Base, Qt::black);
-    palette.setColor(QPalette::Text, Qt::white);
-    textEdit->setPalette(palette);
-}
-
-void TextEditor::createActions()
-{
-    saveAction = new QAction(tr("Save"), this);
-    connect(saveAction, &QAction::triggered, this, &TextEditor::saveFile);
-
-    openAction = new QAction(tr("Open"), this);
-    connect(openAction, &QAction::triggered, this, &TextEditor::openFile);
-
-    exitAction = new QAction(tr("Exit"), this);
-    connect(exitAction, &QAction::triggered, this, &QApplication::quit);
-
-    fontAction = new QAction(tr("Change Font"), this);
-    connect(fontAction, &QAction::triggered, this, &TextEditor::changeFont);
-
-    fontSizeAction = new QAction(tr("Change Font Size"), this);
-    connect(fontSizeAction, &QAction::triggered, this, &TextEditor::changeFontSize);
-
-    fontColorAction = new QAction(tr("Change Font Color"), this);
-    connect(fontColorAction, &QAction::triggered, this, &TextEditor::changeFontColor);
-
-    backgroundColorAction = new QAction(tr("Change Background Color"), this);
-    connect(backgroundColorAction, &QAction::triggered, this, &TextEditor::changeBackgroundColor);
-
-    windowColorAction = new QAction(tr("Change Window Color"), this);
-       connect(windowColorAction, &QAction::triggered, this, &TextEditor::changeWindowColor);
-}
-
-void TextEditor::createMenus()
-{
-    fileMenu = menuBar()->addMenu(tr("File"));
-    fileMenu->addAction(saveAction);
-    fileMenu->addAction(openAction);
-    fileMenu->addAction(exitAction);
-
-    editMenu = menuBar()->addMenu(tr("Edit"));
-    editMenu->addAction(fontAction);
-    editMenu->addAction(fontSizeAction);
-    editMenu->addAction(fontColorAction);
-    editMenu->addAction(backgroundColorAction);
-        editMenu->addAction(windowColorAction);
-
-}
-
-void TextEditor::saveFile()
-{
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"));
-    if (!fileName.isEmpty())
-    {
-        QFile file(fileName);
-        if (file.open(QIODevice::WriteOnly | QIODevice::Text))
-        {
-            QTextStream out(&file);
-            out << textEdit->toPlainText();
-            file.close();
-            currentFile = fileName;
-        }
-    }
+    createToolbar();
 }
 
 void TextEditor::openFile()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"));
-    if (!fileName.isEmpty())
-    {
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Открыть файл"));
+    if (!fileName.isEmpty()) {
         QFile file(fileName);
-        if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-        {
-            QTextStream in(&file);
-            textEdit->setPlainText(in.readAll());
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            QTextStream stream(&file);
+            textEdit->setText(stream.readAll());
             file.close();
-            currentFile = fileName;
+        }
+    }
+}
+
+void TextEditor::saveFile()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Сохранить файл"));
+    if (!fileName.isEmpty()) {
+        QFile file(fileName);
+        if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            QTextStream stream(&file);
+            stream << textEdit->toPlainText();
+            file.close();
         }
     }
 }
@@ -103,51 +48,88 @@ void TextEditor::changeFont()
 {
     bool ok;
     QFont font = QFontDialog::getFont(&ok, textEdit->font(), this);
-    if (ok)
-    {
+    if (ok) {
         textEdit->setFont(font);
     }
 }
 
-void TextEditor::changeFontSize()
-{
-    bool ok;
-    QFont currentFont = textEdit->font();
-    int currentSize = currentFont.pointSize();
-    int fontSize = QInputDialog::getInt(this, tr("Change Font Size"), tr("Font Size:"), currentSize, 1, 100, 1, &ok);
-    if (ok)
-    {
-        currentFont.setPointSize(fontSize);
-        textEdit->setFont(currentFont);
-    }
-}
-
-void TextEditor::changeFontColor()
+void TextEditor::changeTextColor()
 {
     QColor color = QColorDialog::getColor(textEdit->textColor(), this);
-    if (color.isValid())
-    {
+    if (color.isValid()) {
         textEdit->setTextColor(color);
-    }
-}
-
-void TextEditor::changeBackgroundColor()
-{
-    QColor color = QColorDialog::getColor(textEdit->textBackgroundColor(), this);
-    if (color.isValid())
-    {
-        textEdit->setTextBackgroundColor(color);
     }
 }
 
 void TextEditor::changeWindowColor()
 {
-    QColor color = QColorDialog::getColor(palette().color(QPalette::Window), this);
-    if (color.isValid())
-    {
-        QPalette newPalette = textEdit->palette();
-        newPalette.setColor(QPalette::Window, color);
-        textEdit->setPalette(newPalette);
+    QColor color = QColorDialog::getColor(textEdit->palette().color(QPalette::Base), this);
+    if (color.isValid()) {
+        QPalette palette = textEdit->palette();
+        palette.setColor(QPalette::Base, color);
+        textEdit->setPalette(palette);
     }
 }
 
+void TextEditor::createActions()
+{
+    QAction *openAction = new QAction(tr("Открыть"), this);
+    openAction->setShortcut(tr("Ctrl+O"));
+    connect(openAction, &QAction::triggered, this, &TextEditor::openFile);
+
+    QAction *saveAction = new QAction(tr("Сохранить"), this);
+    saveAction->setShortcut(tr("Ctrl+S"));
+    connect(saveAction, &QAction::triggered, this, &TextEditor::saveFile);
+
+    QAction *changeFontAction = new QAction(tr("Сменить шрифт"), this);
+    connect(changeFontAction, &QAction::triggered, this, &TextEditor::changeFont);
+
+    QAction *changeTextColorAction = new QAction(tr("Изменить цвет шрифта"), this);
+    connect(changeTextColorAction, &QAction::triggered, this, &TextEditor::changeTextColor);
+
+    QAction *changeWindowColorAction = new QAction(tr("Изменить цвет окна редактора"), this);
+    connect(changeWindowColorAction, &QAction::triggered, this, &TextEditor::changeWindowColor);
+
+    QMenu *fileMenu = menuBar()->addMenu(tr("Файл"));
+    fileMenu->addAction(openAction);
+    fileMenu->addAction(saveAction);
+
+    //QMenu *editMenu = menuBar()->addMenu(tr("Редактировать"));
+    //editMenu->addAction(changeFontAction);
+    //editMenu->addAction(changeTextColorAction);
+
+    QToolBar *toolbar = addToolBar(tr("Toolbar"));
+    toolbar->addAction(openAction);
+    toolbar->addAction(saveAction);
+    toolbar->addAction(changeFontAction);
+    toolbar->addAction(changeTextColorAction);
+    toolbar->addAction(changeWindowColorAction);
+}
+
+void TextEditor::createToolbar()
+{
+    QToolBar *toolbar = addToolBar(tr("Toolbar"));
+
+    QAction *openAction = new QAction(QIcon::fromTheme("document-open"), tr("Открыть"), this);
+    openAction->setShortcut(tr("Ctrl+O"));
+    connect(openAction, &QAction::triggered, this, &TextEditor::openFile);
+
+    QAction *saveAction = new QAction(QIcon::fromTheme("document-save"), tr("Сохранить"), this);
+    saveAction->setShortcut(tr("Ctrl+S"));
+    connect(saveAction, &QAction::triggered, this, &TextEditor::saveFile);
+
+    QAction *changeFontAction = new QAction(tr("Сменить шрифт"), this);
+    connect(changeFontAction, &QAction::triggered, this, &TextEditor::changeFont);
+
+    QAction *changeTextColorAction = new QAction(tr("Изменить цвет шрифта"), this);
+    connect(changeTextColorAction, &QAction::triggered, this, &TextEditor::changeTextColor);
+
+    QAction *changeWindowColorAction = new QAction(tr("Изменить цвет окна редактора"), this);
+    connect(changeWindowColorAction, &QAction::triggered, this, &TextEditor::changeWindowColor);
+
+    toolbar->addAction(openAction);
+    toolbar->addAction(saveAction);
+    toolbar->addAction(changeFontAction);
+    toolbar->addAction(changeTextColorAction);
+    toolbar->addAction(changeWindowColorAction);
+}
